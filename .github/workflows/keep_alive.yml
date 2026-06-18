@@ -1,0 +1,20 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *' # Run every 14 minutes to keep the Render free tier app warm
+  workflow_dispatch: # Allows manual execution from the GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Web Service
+        env:
+          APP_URL: ${{ secrets.RENDER_APP_URL }}
+        run: |
+          if [ -z "$APP_URL" ]; then
+            echo "RENDER_APP_URL secret is not set. Please add it to your GitHub Repository Secrets (e.g., https://your-app.onrender.com)."
+            exit 1
+          fi
+          curl -s -f "$APP_URL/health" || echo "Ping failed"

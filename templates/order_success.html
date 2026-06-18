@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Order Received | Buttermelow{% endblock %}
+{% block content %}
+<section class="success-panel">
+  <div class="success-mark">✓</div>
+  <p class="eyebrow">Order received</p>
+  <h1>Thank you, {{ order.customer_name }}</h1>
+  <p>Your order number is <strong>{{ order.order_number }}</strong>. We saved your order and will contact you to confirm
+    the details.</p>
+  <a class="button primary" href="/menu">Return to menu</a>
+</section>
+{% endblock %}

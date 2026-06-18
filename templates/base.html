@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Freshly baked cakes, cookies, brownies, and celebration treats from Buttermelow.">
+  <title>{% block title %}Buttermelow{% endblock %}</title>
+  <link rel="icon" href="/static/logo.jpg">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">
+      <img src="/static/logo.jpg" alt="Buttermelow">
+      <span>Buttermelow</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="{{ 'active' if page == 'home' else '' }}" href="/">Home</a>
+      <a class="{{ 'active' if page == 'menu' else '' }}" href="/menu">Menu</a>
+      <a class="{{ 'active' if page == 'contact' else '' }}" href="/contact">Contact</a>
+      <a class="cart-link {{ 'active' if page == 'cart' else '' }}" href="/cart">
+        Cart <span class="cart-count" data-cart-count>0</span>
+      </a>
+    </nav>
+  </header>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>Buttermelow</strong>
+      <p>Freshly made for your order.</p>
+    </div>
+    <div>
+      <strong>Order support</strong>
+      <p><a href="tel:+918125940747">+91 81259 40747</a></p>
+    </div>
+    <a class="owner-link" href="/owner/login">Owner login</a>
+  </footer>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="/static/js/cart.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+{% extends "owner_base.html" %}
+{% block title %}Customers | Buttermelow{% endblock %}
+{% block content %}
+<div class="owner-title">
+  <div>
+    <p class="eyebrow">Order history</p>
+    <h1>Customers</h1>
+  </div>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Orders</th>
+        <th>First seen</th>
+        <th>Last seen</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for customer in customers %}
+      <tr>
+        <td><strong>{{ customer.name }}</strong></td>
+        <td><a href="tel:{{ customer.phone }}">{{ customer.phone }}</a></td>
+        <td>{{ customer.email or "—" }}</td>
+        <td>{{ customer.order_count }}</td>
+        <td>{{ customer.first_seen_at[:10] }}</td>
+        <td>{{ customer.last_seen_at[:10] }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">No customers yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "owner_base.html" %}
+{% block title %}Menu Management | Buttermelow{% endblock %}
+{% block content %}
+<div class="owner-title">
+  <div>
+    <p class="eyebrow">Website content</p>
+    <h1>Menu management</h1>
+  </div>
+</div>
+<details class="admin-form-panel" open>
+  <summary>Add a menu item</summary>
+  <form class="admin-form" action="/owner/menu" method="post" enctype="multipart/form-data">
+    <label>Name<input name="name" required></label>
+    <label>Category<input name="category" required></label>
+    <label>Price in ₹<input name="price" type="number" min="0" step="0.01" required></label>
+    <label>Image<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <label class="full">Description<textarea name="description" rows="3"></textarea></label>
+    <button class="button primary" type="submit">Add item</button>
+  </form>
+</details>
+
+<section class="admin-menu-list">
+  {% for item in items %}
+  <details class="admin-menu-item">
+    <summary>
+      {% if item.image_path %}<img
+        src="{{ '/uploads/' + item.image_path[8:] if item.image_path.startswith('uploads/') else '/static/' + item.image_path }}"
+        alt="">{% endif %}
+      <span><strong>{{ item.name }}</strong><small>{{ item.category }} · {{ item.price_paise|money }}</small></span>
+      <span class="availability {{ '' if item.is_available else 'off' }}">{{ "Available" if item.is_available else
+        "Unavailable" }}</span>
+    </summary>
+    <form class="admin-form" action="/owner/menu/{{ item.id }}" method="post" enctype="multipart/form-data">
+      <label>Name<input name="name" value="{{ item.name }}" required></label>
+      <label>Category<input name="category" value="{{ item.category }}" required></label>
+      <label>Price in ₹<input name="price" type="number" min="0" step="0.01"
+          value="{{ '%.2f'|format(item.price_paise / 100) }}" required></label>
+      <label>Replace image<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <label class="full">Description<textarea name="description" rows="3">{{ item.description }}</textarea></label>
+      <label class="choice full"><input name="is_available" type="checkbox" value="1" {{ "checked" if item.is_available
+          else "" }}> Show this item to customers</label>
+      <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; width: 100%;">
+        <button class="button primary" type="submit" style="margin: 0;">Save changes</button>
+        <button class="button secondary" type="submit"
+          formaction="/owner/menu/{{ item.id }}/delete" formmethod="post"
+          onclick="return confirm('Are you sure you want to permanently delete {{ item.name }}? This action cannot be undone.');"
+          style="border-color: #a32424; color: #a32424; margin: 0;">
+          Delete item
+        </button>
+      </div>
+    </form>
+  </details>
+  {% endfor %}
+</section>
+{% endblock %}

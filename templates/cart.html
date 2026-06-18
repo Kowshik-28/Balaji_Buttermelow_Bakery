@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Your Cart | Buttermelow{% endblock %}
+{% block content %}
+<section class="page-intro compact">
+  <p class="eyebrow">Review and confirm</p>
+  <h1>Your order</h1>
+</section>
+
+<section class="checkout-layout">
+  <div class="cart-panel">
+    <div id="cart-items"></div>
+    <div id="empty-cart" class="empty-state" hidden>
+      <h2>Your cart is empty</h2>
+      <p>Choose something lovely from the menu to begin.</p>
+      <a class="button primary" href="/menu">Browse menu</a>
+    </div>
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cart-total">₹0.00</strong>
+    </div>
+  </div>
+
+  <form id="checkout-form" class="checkout-form">
+    <div class="form-heading">
+      <p class="eyebrow">Customer details</p>
+      <h2>Where should we confirm the order?</h2>
+    </div>
+    <div class="form-grid">
+      <label>Full name<input name="name" autocomplete="name" required></label>
+      <label>Phone number<input name="phone" type="tel" autocomplete="tel" placeholder="+91 81259 40747"
+          required></label>
+      <label>Email, optional<input name="email" type="email" autocomplete="email"></label>
+      <label>Preferred date and time<input name="requested_time" type="datetime-local"></label>
+    </div>
+    <fieldset>
+      <legend>Fulfillment</legend>
+      <label class="choice"><input type="radio" name="fulfillment_type" value="pickup" checked> Pickup</label>
+      <label class="choice"><input type="radio" name="fulfillment_type" value="delivery"> Delivery</label>
+    </fieldset>
+    <label id="address-field" hidden>Delivery address<textarea name="address" rows="3"></textarea></label>
+    <label>Notes or custom requests<textarea name="notes" rows="4"
+        placeholder="Flavor, inscription, allergies, or occasion details"></textarea></label>
+    <p class="form-error" id="form-error" role="alert"></p>
+    <button class="button primary wide" type="submit">Place order</button>
+    <p class="form-note">Your order is saved immediately. We will contact you to confirm availability, final custom-cake
+      pricing, payment, and delivery.</p>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/checkout.js"></script>{% endblock %}

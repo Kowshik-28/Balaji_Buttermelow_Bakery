@@ -1,0 +1,85 @@
+{% extends "owner_base.html" %}
+{% block content %}
+<div class="owner-title">
+  <div><p class="eyebrow">Welcome, {{ admin_username }}</p><h1>Orders</h1></div>
+  <div class="view-switch">
+    <a class="{{ '' if archived else 'active' }}" href="/owner">Active</a>
+    <a class="{{ 'active' if archived else '' }}" href="/owner?archived=1">Archived</a>
+  </div>
+  <div style="margin-left:8px;">
+    <a class="button" href="/owner/export-archived">Download(Excel)</a>
+  </div>
+</div>
+<section class="stat-grid">
+  <div><span>New orders</span><strong>{{ stats.new_orders }}</strong></div>
+  <div><span>Customers</span><strong>{{ stats.customer_count }}</strong></div>
+  <div><span>All orders</span><strong>{{ stats.total_orders }}</strong></div>
+  <div><span>Completed value</span><strong>{{ stats.completed_revenue|money }}</strong></div>
+</section>
+
+<section class="order-list">
+  {% for order in orders %}
+  <article class="order-row">
+    <!-- <pre style="white-space:pre-wrap; background:#f6f6f6; padding:8px; font-size:12px;">{{ order|tojson(indent=2) }}</pre> -->
+    <div class="order-summary">
+      <div>
+        <span class="status status-{{ order.status }}">{{ order.status }}</span>
+        <h2>{{ order.order_number }}</h2>
+        <p>{{ order.customer_name }} · <a href="tel:{{ order.customer_phone }}">{{ order.customer_phone }}</a>
+          {% if order.customer_order_count > 1 %}<strong class="returning">Returning customer · {{ order.customer_order_count }} orders</strong>{% endif %}
+        </p>
+      </div>
+      <div class="order-value"><strong>{{ order.total_paise|money }}</strong><span>{{ order.created_at[:16]|replace("T", " ") }}</span></div>
+    </div>
+    <div class="order-details">
+      <ul>
+        {% for item in order["items"] %}
+        <li><strong>{{ item.quantity }}×</strong> {{ item.item_name }} <span>{{ item.subtotal_paise|money }}</span></li>
+        {% endfor %}
+      </ul>
+      <p><strong>{{ order.fulfillment_type|title }}</strong>{% if order.requested_time %} · {{ order.requested_time|replace("T", " ") }}{% endif %}</p>
+      {% if order.notes %}<p class="order-note">{{ order.notes }}</p>{% endif %}
+      {% if order.customer_address %}<p class="order-address"><strong>Address:</strong> {{ order.customer_address }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}</p>{% endif %}
+      <!-- {# Address: try common keys and display if present #}
+      {% if order.address %}
+      <p class="order-address"><strong>Address:</strong> {{ order.address }}</p>
+      {% elif order.customer_address %}
+      <p class="order-address"><strong>Address:</strong> {{ order.customer_address }}</p>
+      {% elif order.delivery_address %}
+      <p class="order-address"><strong>Address:</strong> {{ order.delivery_address }}</p>
+      {% endif %} -->
+    </div>
+    {% if not archived %}
+    <div class="order-actions">
+      <form action="/owner/orders/{{ order.id }}/status" method="post">
+        <select name="status" aria-label="Order status">
+          {% for status in statuses %}<option value="{{ status }}" {{ 'selected' if status == order.status else '' }}>{{ status|title }}</option>{% endfor %}
+        </select>
+        <button class="button small" type="submit">Update</button>
+      </form>
+      {% if order.status in ["completed", "cancelled"] %}
+      <form action="/owner/orders/{{ order.id }}/archive" method="post">
+        <button class="button secondary small" type="submit">Archive</button>
+      </form>
+      {% endif %}
+      {% if order.status == "cancelled" %}
+      <form action="/owner/orders/{{ order.id }}/delete" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this order? This will decrement the customer\'s order count.');">
+        <button class="button secondary small" style="border-color: #a32424; color: #a32424;" type="submit">Delete</button>
+      </form>
+      {% endif %}
+    </div>
+    {% else %}
+      {% if order.status == "cancelled" %}
+      <div class="order-actions">
+        <form action="/owner/orders/{{ order.id }}/delete" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this archived order? This will decrement the customer\'s order count.');">
+          <button class="button secondary small" style="border-color: #a32424; color: #a32424;" type="submit">Delete</button>
+        </form>
+      </div>
+      {% endif %}
+    {% endif %}
+  </article>
+  {% else %}
+  <div class="empty-state"><h2>No {{ "archived" if archived else "active" }} orders</h2><p>Orders will appear here as customers place them.</p></div>
+  {% endfor %}
+</section>
+{% endblock %}

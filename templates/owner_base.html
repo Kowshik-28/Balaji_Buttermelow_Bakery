@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Owner | Buttermelow{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+
+<body class="owner-body">
+  <header class="owner-header">
+    <a class="brand" href="/owner"><img src="/static/logo.jpg" alt=""><span>Owner workspace</span></a>
+    <nav>
+      <a href="/owner">Orders</a>
+      <a href="/owner/menu">Menu</a>
+      <a href="/owner/customers">Customers</a>
+      <a href="/" target="_blank">View site</a>
+      <form action="/owner/logout" method="post"><button class="link-button" type="submit">Log out</button></form>
+    </nav>
+  </header>
+  <main class="owner-main">{% block content %}{% endblock %}</main>
+</body>
+
+</html>

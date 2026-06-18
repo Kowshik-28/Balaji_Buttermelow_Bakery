@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-media">
+    <img src="/static/products/🍰 1. Mango Tres Leches.jpeg" alt="Mango tres leches cake">
+  </div>
+  <div class="hero-copy">
+    <p class="eyebrow">Handcrafted in small batches</p>
+    <h1>Buttermelow</h1>
+    <p>Celebration cakes, soft tres leches, rich brownies, and buttery cookies made fresh for every order.</p>
+    <div class="button-row">
+      <a class="button primary" href="/menu">Order from the menu</a>
+      <a class="button secondary" href="/contact">Plan a custom cake</a>
+    </div>
+  </div>
+</section>
+
+<section class="content-band">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Customer favorites</p>
+      <h2>Made to be remembered</h2>
+    </div>
+    <a class="text-link" href="/menu">See the full menu →</a>
+  </div>
+  <div class="product-grid">
+    {% for item in items %}
+    <article class="product-card {% if not item.is_available %}unavailable{% endif %}">
+      <img
+        src="{{ '/uploads/' + item.image_path[8:] if item.image_path and item.image_path.startswith('uploads/') else '/static/' + item.image_path }}"
+        alt="{{ item.name }}">
+      <div class="product-body">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
+          <span>{{ item.category }}</span>
+          {% if not item.is_available %}
+          <span class="unavailable-badge">Unavailable</span>
+          {% endif %}
+        </div>
+        <h3>{{ item.name }}</h3>
+        <p>{{ item.description }}</p>
+        <div class="product-action">
+          <strong>{{ item.price_paise|money }}</strong>
+          {% if item.is_available %}
+          <button class="button small add-to-cart" type="button"
+            data-item='{{ {"id": item.id, "name": item.name, "price_paise": item.price_paise, "image_path": item.image_path}|tojson }}'>
+            Add to cart
+          </button>
+          {% else %}
+          <button class="button small secondary add-to-cart" type="button" disabled style="opacity: 0.6; cursor: not-allowed; border-color: var(--line); margin: 0;">
+            Out of Stock
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="story-band">
+  <div>
+    <p class="eyebrow">Baked for your moment</p>
+    <h2>Thoughtful treats, made after you order</h2>
+  </div>
+  <p>Every order is prepared fresh. Tell us about the occasion, preferred flavors, pickup time, or delivery needs during
+    checkout and we will confirm the details with you.</p>
+</section>
+{% endblock %}
