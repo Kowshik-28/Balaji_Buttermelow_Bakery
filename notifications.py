@@ -7,6 +7,11 @@ def _send_email(to: str, subject: str, body: str) -> None:
     api_key = os.getenv("RESEND_API_KEY")
     sender = os.getenv("SENDER_EMAIL", "onboarding@resend.dev")
     
+    if api_key:
+        api_key = api_key.strip().strip("'\"")
+    if sender:
+        sender = sender.strip().strip("'\"")
+        
     if not api_key:
         raise ValueError("RESEND_API_KEY environment variable is not set")
     
@@ -106,6 +111,8 @@ def send_order_notifications(order: dict, items: list[dict]) -> None:
 
     # Send Email to Owner
     owner_email = os.getenv("OWNER_EMAIL", "kowshik8125@gmail.com")
+    if owner_email:
+        owner_email = owner_email.strip().strip("'\"")
     if owner_email:
         email_items = "\n".join(
             f"- {item['quantity']}x {item['item_name']} (Rs {item['unit_price_paise']/100:.2f} each)" for item in items
