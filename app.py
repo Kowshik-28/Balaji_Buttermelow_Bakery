@@ -607,6 +607,8 @@ def export_archived_orders(request: Request):
             """
         ).fetchall()
         orders = rows_to_dicts(rows)
+        if not orders:
+            raise HTTPException(status_code=400, detail="No archived orders found to export.")
         for order in orders:
             order["items"] = rows_to_dicts(
                 db.execute(
@@ -641,7 +643,9 @@ def export_archived_orders(request: Request):
     wb.remove(default)
 
     for date_key, ods in sorted(groups.items()):
-        sheet_name = date_key[:31]  # Excel sheet name limit
+        # Clean invalid characters for Excel sheet name (\, /, ?, *, :, [, ])
+        clean_date_key = re.sub(r"[\\*?:/\[\]]", "_", date_key)
+        sheet_name = clean_date_key[:31]  # Excel sheet name limit
         ws = wb.create_sheet(title=sheet_name)
         ws.append(["TBM", "Customer name", "Items", "Phone no", "Address", "Amount", "Time of delivery"])
         for o in ods:
