@@ -26,9 +26,9 @@ services:
         sync: false
       - key: TWILIO_WHATSAPP_CONTENT_SID
         sync: false
-      - key: SENDER_EMAIL
+      - key: RESEND_API_KEY
         sync: false
-      - key: SENDER_EMAIL_PASSWORD
+      - key: SENDER_EMAIL
         sync: false
       - key: OWNER_EMAIL
         sync: false

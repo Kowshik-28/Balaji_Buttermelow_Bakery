@@ -1,23 +1,31 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
+import requests
 from twilio.rest import Client
 from database import get_db, utc_now
 
 def _send_email(to: str, subject: str, body: str) -> None:
-    sender = os.getenv("SENDER_EMAIL", "kowshik8125@gmail.com")
-    passwd = os.getenv("SENDER_EMAIL_PASSWORD", "tvsrslqcyzehyefl")
+    api_key = os.getenv("RESEND_API_KEY")
+    sender = os.getenv("SENDER_EMAIL", "onboarding@resend.dev")
     
-    msg = MIMEText(body)
-    msg["Subject"] = subject
-    msg["From"] = sender
-    msg["To"] = to
+    if not api_key:
+        raise ValueError("RESEND_API_KEY environment variable is not set")
+    
+    payload = {
+        "from": f"Buttermelow <{sender}>",
+        "to": [to],
+        "subject": subject,
+        "text": body
+    }
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post("https://api.resend.com/emails", headers=headers, json=payload)
+    if response.status_code not in (200, 201):
+        raise RuntimeError(f"Resend API error: {response.status_code} - {response.text}")
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(sender, passwd)
-    server.send_message(msg)
-    server.quit()
 
 
 def _record(order_id, channel, recipient, status, sid=None, error=None):
