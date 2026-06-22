@@ -253,7 +253,12 @@ async def create_order(request: Request, background_tasks: BackgroundTasks):
         "order_number": order_number,
         "customer_name": customer_name,
         "customer_phone": customer_phone,
+        "customer_email": email,
+        "customer_address": address,
         "total_paise": total,
+        "fulfillment_type": fulfillment,
+        "requested_time": str(payload.get("requested_time", "")).strip() or None,
+        "notes": str(payload.get("notes", "")).strip() or None,
     }
     background_tasks.add_task(
         send_order_notifications, notification_order, order_items

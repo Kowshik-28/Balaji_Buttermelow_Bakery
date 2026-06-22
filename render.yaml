@@ -26,6 +26,12 @@ services:
         sync: false
       - key: TWILIO_WHATSAPP_CONTENT_SID
         sync: false
+      - key: SENDER_EMAIL
+        sync: false
+      - key: SENDER_EMAIL_PASSWORD
+        sync: false
+      - key: OWNER_EMAIL
+        sync: false
     disk:
       name: buttermelow-data
       mountPath: /data

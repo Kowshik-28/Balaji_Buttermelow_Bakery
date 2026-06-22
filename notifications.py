@@ -1,6 +1,24 @@
 import os
+import smtplib
+from email.mime.text import MIMEText
 from twilio.rest import Client
 from database import get_db, utc_now
+
+def _send_email(to: str, subject: str, body: str) -> None:
+    sender = os.getenv("SENDER_EMAIL", "kowshik8125@gmail.com")
+    passwd = os.getenv("SENDER_EMAIL_PASSWORD", "tvsrslqcyzehyefl")
+    
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender
+    msg["To"] = to
+
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(sender, passwd)
+    server.send_message(msg)
+    server.quit()
+
 
 def _record(order_id, channel, recipient, status, sid=None, error=None):
     with get_db() as db:
@@ -77,3 +95,58 @@ def send_order_notifications(order: dict, items: list[dict]) -> None:
                 _record(order["id"], "whatsapp", recipient, "sent", sid=msg.sid)
             except Exception as e:
                 _record(order["id"], "whatsapp", recipient, "failed", error=str(e))
+
+    # Send Email to Owner
+    owner_email = os.getenv("OWNER_EMAIL", "kowshik8125@gmail.com")
+    if owner_email:
+        email_items = "\n".join(
+            f"- {item['quantity']}x {item['item_name']} (Rs {item['unit_price_paise']/100:.2f} each)" for item in items
+        )
+        email_owner_body = (
+            f"Hi Owner,\n\n"
+            f"You have received a new order on Buttermelow!\n\n"
+            f"Order Number: {order['order_number']}\n"
+            f"Customer Name: {order['customer_name']}\n"
+            f"Phone: {order['customer_phone']}\n"
+            f"Email: {order.get('customer_email') or 'Not provided'}\n"
+            f"Fulfillment: {order.get('fulfillment_type', 'pickup').capitalize()}\n"
+            f"Delivery/Pickup Time: {order.get('requested_time') or 'Not specified'}\n"
+            f"Address: {order.get('customer_address') or 'Not provided'}\n"
+            f"Notes/Requests: {order.get('notes') or 'None'}\n\n"
+            f"Items Ordered:\n{email_items}\n\n"
+            f"Total Amount: Rs {order['total_paise'] / 100:.2f}\n\n"
+            f"Best regards,\n"
+            f"Buttermelow System"
+        )
+        try:
+            _send_email(owner_email, f"New Order Received - {order['order_number']}", email_owner_body)
+            _record(order["id"], "email", owner_email, "sent")
+        except Exception as e:
+            _record(order["id"], "email", owner_email, "failed", error=str(e))
+
+    # Send Email to Customer
+    cust_email = order.get("customer_email")
+    if cust_email:
+        email_items = "\n".join(
+            f"- {item['quantity']}x {item['item_name']} (Rs {item['unit_price_paise']/100:.2f} each)" for item in items
+        )
+        email_customer_body = (
+            f"Hi {order['customer_name']},\n\n"
+            f"Thank you for ordering from Buttermelow! We have received your order and will confirm it shortly.\n\n"
+            f"Order Details:\n"
+            f"Order Number: {order['order_number']}\n"
+            f"Fulfillment: {order.get('fulfillment_type', 'pickup').capitalize()}\n"
+            f"Delivery/Pickup Time: {order.get('requested_time') or 'Not specified'}\n"
+            f"Delivery Address: {order.get('customer_address') or 'Not provided'}\n"
+            f"Notes/Requests: {order.get('notes') or 'None'}\n\n"
+            f"Items Ordered:\n{email_items}\n\n"
+            f"Total Amount: Rs {order['total_paise'] / 100:.2f}\n\n"
+            f"If you have any questions or need to make changes, please contact order support at +91 81259 40747.\n\n"
+            f"Best regards,\n"
+            f"Buttermelow Bakery"
+        )
+        try:
+            _send_email(cust_email, f"Your Buttermelow Order Confirmation - {order['order_number']}", email_customer_body)
+            _record(order["id"], "email", cust_email, "sent")
+        except Exception as e:
+            _record(order["id"], "email", cust_email, "failed", error=str(e))
