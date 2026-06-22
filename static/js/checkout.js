@@ -67,11 +67,92 @@ function updateItem(id, action) {
 document.querySelectorAll('input[name="fulfillment_type"]').forEach((input) => {
   input.addEventListener("change", () => {
     const delivery = input.value === "delivery" && input.checked;
-    if (delivery) addressField.hidden = false;
-    if (!delivery && input.checked) addressField.hidden = true;
-    addressField.querySelector("textarea").required = !addressField.hidden;
+    addressField.hidden = !delivery;
+    addressField.querySelectorAll("input[name^='address_']").forEach((field) => {
+      field.required = delivery;
+    });
   });
 });
+
+// Sync structured address inputs with the hidden address input
+function updateHiddenAddress() {
+  const flat = checkoutForm.querySelector('[name="address_flat"]').value.trim();
+  const street = checkoutForm.querySelector('[name="address_street"]').value.trim();
+  const pincode = checkoutForm.querySelector('[name="address_pincode"]').value.trim();
+  const city = checkoutForm.querySelector('[name="address_city"]').value.trim();
+  
+  if (flat || street || city || pincode) {
+    checkoutForm.querySelector('[name="address"]').value = `${flat}, ${street}, ${city} - ${pincode}`;
+  } else {
+    checkoutForm.querySelector('[name="address"]').value = "";
+  }
+}
+
+checkoutForm.querySelectorAll('input[name^="address_"]').forEach((input) => {
+  input.addEventListener("input", updateHiddenAddress);
+});
+
+// Live Location Detection using browser Geolocation + OpenStreetMap Nominatim API
+const detectLocationBtn = document.querySelector("#detect-location-btn");
+if (detectLocationBtn) {
+  detectLocationBtn.addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    detectLocationBtn.disabled = true;
+    detectLocationBtn.textContent = "⏳ Detecting...";
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // Fetch reverse geocoded address from Nominatim API (Free & Keyless)
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+          );
+          if (!response.ok) throw new Error("Location lookup failed.");
+          
+          const data = await response.json();
+          if (data && data.address) {
+            const addr = data.address;
+            
+            // Extract street / area details
+            const streetVal = addr.road || addr.suburb || addr.neighbourhood || addr.village || "";
+            const cityVal = addr.city || addr.town || addr.village || addr.county || "";
+            const pincodeVal = addr.postcode || "";
+
+            // Populate form fields
+            const streetInput = checkoutForm.querySelector('[name="address_street"]');
+            const pincodeInput = checkoutForm.querySelector('[name="address_pincode"]');
+            const cityInput = checkoutForm.querySelector('[name="address_city"]');
+            
+            if (streetVal) streetInput.value = streetVal;
+            if (pincodeVal) pincodeInput.value = pincodeVal;
+            if (cityVal) cityInput.value = cityVal;
+
+            updateHiddenAddress();
+
+            // Set focus to the Flat No field so the user can easily type their house/flat number
+            checkoutForm.querySelector('[name="address_flat"]').focus();
+          }
+        } catch (error) {
+          alert("Could not fetch address details for your location. Please enter it manually.");
+        } finally {
+          detectLocationBtn.disabled = false;
+          detectLocationBtn.textContent = "📍 Detect location";
+        }
+      },
+      (error) => {
+        alert("Location access denied or unavailable. Please enter your address manually.");
+        detectLocationBtn.disabled = false;
+        detectLocationBtn.textContent = "📍 Detect location";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+}
 
 checkoutForm.addEventListener("submit", async (event) => {
   event.preventDefault();

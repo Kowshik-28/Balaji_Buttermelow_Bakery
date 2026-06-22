@@ -1267,3 +1267,40 @@ td strong {
   display: inline-block;
 }
 
+/* Address Form Layout & Styling */
+.address-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  background: var(--paper);
+  padding: 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1.5px solid var(--line);
+  padding-bottom: 10px;
+}
+.address-header h3 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+.address-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 580px) {
+  .address-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

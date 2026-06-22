@@ -37,7 +37,21 @@
       <label class="choice"><input type="radio" name="fulfillment_type" value="pickup" checked> Pickup</label>
       <label class="choice"><input type="radio" name="fulfillment_type" value="delivery"> Delivery</label>
     </fieldset>
-    <label id="address-field" hidden>Delivery address<textarea name="address" rows="3"></textarea></label>
+    <div id="address-field" class="address-container" hidden>
+      <div class="address-header">
+        <h3>Delivery details</h3>
+        <button type="button" id="detect-location-btn" class="button small secondary" style="margin: 0;">
+          📍 Detect location
+        </button>
+      </div>
+      <div class="address-fields-grid">
+        <label>Flat / House / Building<input name="address_flat" placeholder="e.g. Flat 101, Sweet Villa"></label>
+        <label>Street / Area / Locality<input name="address_street" placeholder="e.g. Baker's Lane"></label>
+        <label>Pincode<input name="address_pincode" type="number" placeholder="e.g. 560001"></label>
+        <label>City<input name="address_city" placeholder="e.g. Bangalore"></label>
+      </div>
+      <input type="hidden" name="address">
+    </div>
     <label>Notes or custom requests<textarea name="notes" rows="4"
         placeholder="Flavor, inscription, allergies, or occasion details"></textarea></label>
     <p class="form-error" id="form-error" role="alert"></p>
