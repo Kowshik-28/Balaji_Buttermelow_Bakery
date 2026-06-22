@@ -161,6 +161,33 @@ p { line-height: 1.7; color: var(--muted); }
 
 .nav-toggle { display: none; border: 0; background: none; font-size: 1.5rem; cursor: pointer; color: var(--ink); }
 
+.mobile-cart {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+  color: var(--ink);
+  padding: 8px;
+  transition: transform var(--transition-smooth);
+}
+.mobile-cart:active {
+  transform: scale(0.9);
+}
+.mobile-cart .cart-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--ink);
+}
+.mobile-cart .cart-count {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  font-size: 0.65rem;
+  min-width: 18px;
+  height: 18px;
+}
+
 .hero {
   min-height: min(780px, calc(100vh - 80px));
   display: grid;
@@ -1154,6 +1181,8 @@ td strong {
   .site-header { min-height: 72px; }
   .brand img { width: 46px; height: 46px; }
   .nav-toggle { display: block; }
+  .mobile-cart { display: flex; margin-left: auto; margin-right: 12px; }
+  .site-nav .cart-link { display: none; }
   .site-nav {
     display: none;
     position: absolute;
